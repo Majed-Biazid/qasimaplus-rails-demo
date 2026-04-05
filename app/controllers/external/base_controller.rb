@@ -44,12 +44,17 @@ module External
       serialize_voucher(order).merge(
         location:       merchant&.location || "Riyadh, Saudi Arabia",
         merchant_type:  merchant&.merchant_type || "Retail",
-        payment_method: "Visa •••• 4242",
+        payment_method: payment_method_for(order),
         consumer_name:  current_consumer&.name,
         consumer_email: current_consumer&.email,
         tax_amount:     order.tax_amount.to_f,
         pre_tax_amount: order.pre_tax_amount.to_f,
       )
+    end
+
+    def payment_method_for(order)
+      methods = ["Visa •••• 4242", "Mastercard •••• 8831", "mada •••• 5619", "Apple Pay", "STC Pay"]
+      methods[order.id % methods.length]
     end
 
     def serialize_consumer(consumer)
