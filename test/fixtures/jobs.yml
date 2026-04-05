@@ -1,0 +1,14 @@
+pending_job:
+  title: Import new merchant CSV
+  status: pending
+  priority: high
+
+running_job:
+  title: Process refund
+  status: running
+  priority: medium
+
+done_job:
+  title: Sync invoices
+  status: done
+  priority: high

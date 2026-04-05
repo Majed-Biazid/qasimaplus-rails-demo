@@ -1,0 +1,13 @@
+majed:
+  name: Majed Biazid
+  email: majed@autobia.com
+  plan: pro
+  company: "+966 50 123 4567"
+  joined_on: 2024-03-15
+
+sara:
+  name: Sara Al-Rashid
+  email: sara@example.com
+  plan: starter
+  company: "+966 55 234 5678"
+  joined_on: 2024-06-01

@@ -1,0 +1,27 @@
+starbucks_voucher:
+  customer: majed
+  product_name: Starbucks
+  amount: 28.50
+  status: paid
+  placed_on: <%= Date.today %>
+
+jarir_voucher:
+  customer: majed
+  product_name: Jarir Bookstore
+  amount: 156.00
+  status: paid
+  placed_on: <%= Date.today - 1 %>
+
+pending_voucher:
+  customer: majed
+  product_name: Careem
+  amount: 42.00
+  status: pending
+  placed_on: <%= Date.today - 5 %>
+
+refunded_voucher:
+  customer: sara
+  product_name: STC Pay
+  amount: 200.00
+  status: refunded
+  placed_on: <%= Date.today - 10 %>

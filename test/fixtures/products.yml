@@ -1,0 +1,13 @@
+starbucks:
+  name: Starbucks
+  description: "Kingdom Centre, Riyadh"
+  price: 32.00
+  category: "F&B"
+  in_stock: true
+
+jarir:
+  name: Jarir Bookstore
+  description: "Olaya Street, Riyadh"
+  price: 85.00
+  category: Retail
+  in_stock: true
