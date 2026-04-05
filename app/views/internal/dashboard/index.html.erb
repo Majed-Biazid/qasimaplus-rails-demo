@@ -1,0 +1,91 @@
+<% content_for :title, "Dashboard" %>
+<%= turbo_stream_from "jobs" %>
+
+<div class="ops-page">
+  <div class="ops-page-header">
+    <div>
+      <div class="ops-page-title">Admin Dashboard</div>
+      <div class="ops-page-sub">
+        Consumer voucher analytics + live <strong>Turbo Streams</strong> job queue.
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:hsl(220,8%,55%);">
+      <span class="live-dot"></span> live
+    </div>
+  </div>
+
+  <%# Voucher stats %>
+  <div class="ops-stats animate-fade-up">
+    <div class="ops-stat">
+      <div class="ops-stat-dot c-blue"></div>
+      <div class="ops-stat-val"><%= @voucher_stats[:total] %></div>
+      <div class="ops-stat-label">Total Vouchers</div>
+    </div>
+    <div class="ops-stat">
+      <div class="ops-stat-dot c-green"></div>
+      <div class="ops-stat-val"><%= @voucher_stats[:consumers] %></div>
+      <div class="ops-stat-label">Consumers</div>
+    </div>
+    <div class="ops-stat">
+      <div class="ops-stat-dot c-amber"></div>
+      <div class="ops-stat-val">SAR <%= @voucher_stats[:revenue].to_i %></div>
+      <div class="ops-stat-label">Revenue</div>
+    </div>
+    <div class="ops-stat">
+      <div class="ops-stat-dot c-red"></div>
+      <div class="ops-stat-val"><%= @voucher_stats[:pending] %></div>
+      <div class="ops-stat-label">Pending</div>
+    </div>
+  </div>
+
+  <%# Recent vouchers %>
+  <div class="ops-card animate-fade-up delay-1" style="margin-bottom:16px;">
+    <div class="ops-card-header">
+      <span class="ops-card-title">Recent Vouchers</span>
+      <span class="ops-card-meta"><%= @recent_vouchers.size %> latest</span>
+    </div>
+    <% @recent_vouchers.each do |voucher| %>
+      <div class="ops-row">
+        <div class="ops-avatar"><%= voucher.customer&.initials || "?" %></div>
+        <div style="flex:1;min-width:0;">
+          <div class="ops-row-title"><%= voucher.merchant_name %></div>
+          <div class="ops-row-meta"><%= voucher.customer&.name %> · <%= voucher.placed_on&.strftime("%b %d") %></div>
+        </div>
+        <span style="font-family:'Fraunces',serif;font-size:14px;font-weight:600;color:hsl(220,15%,12%);">
+          SAR <%= voucher.amount.to_f.round(2) %>
+        </span>
+        <span class="ops-badge ops-badge-<%= voucher.display_status %>"><%= voucher.display_status %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Job queue stats %>
+  <%= render partial: "dashboard/stats_row" %>
+
+  <%# Job queue + form %>
+  <div class="ops-split-2-1">
+    <div class="ops-card animate-fade-up delay-3">
+      <div class="ops-card-header">
+        <span class="ops-card-title">Job Queue</span>
+        <div class="ops-card-meta"><span class="live-dot"></span> Turbo Streams</div>
+      </div>
+      <div id="job_list">
+        <% @jobs.each do |job| %>
+          <%= render partial: "jobs/job", locals: { job: job } %>
+        <% end %>
+        <% if @jobs.empty? %>
+          <div style="text-align:center;padding:40px;font-size:13px;color:hsl(220,8%,55%);">
+            No jobs yet — add one →
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="ops-card animate-fade-up delay-4" style="padding:20px;">
+      <div class="ops-card-title" style="margin-bottom:16px;">Add Job</div>
+      <%= turbo_frame_tag "new_job_form" do %>
+        <%= render partial: "jobs/form", locals: { job: Job.new } %>
+      <% end %>
+    </div>
+  </div>
+</div>

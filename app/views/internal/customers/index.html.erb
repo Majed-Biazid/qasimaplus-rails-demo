@@ -1,0 +1,59 @@
+<div class="ops-page">
+  <div class="ops-page-header">
+    <div>
+      <div class="ops-page-title">Consumers</div>
+      <div class="ops-page-sub">
+        Manage consumers — data in <strong>@customers</strong>, links via <strong>Turbo Drive</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="ops-stats-3 animate-fade-up" style="margin-bottom:16px;">
+    <div class="ops-stat">
+      <div class="ops-stat-dot c-blue"></div>
+      <div class="ops-stat-val"><%= @customers.size %></div>
+      <div class="ops-stat-label">Total Consumers</div>
+    </div>
+    <div class="ops-stat">
+      <div class="ops-stat-dot c-green"></div>
+      <div class="ops-stat-val"><%= @customers.count { |c| c.orders.any? } %></div>
+      <div class="ops-stat-label">Active (with vouchers)</div>
+    </div>
+    <div class="ops-stat">
+      <div class="ops-stat-dot c-amber"></div>
+      <div class="ops-stat-val">SAR <%= @customers.sum(&:total_spent).to_i %></div>
+      <div class="ops-stat-label">Total Revenue</div>
+    </div>
+  </div>
+
+  <div class="ops-card animate-fade-up delay-1">
+    <div class="ops-card-header">
+      <span class="ops-card-title">All Consumers</span>
+      <span class="ops-card-meta">Turbo Drive navigation</span>
+    </div>
+    <% @customers.each do |customer| %>
+      <%= link_to internal_customer_path(customer), class: "ops-customer-link" do %>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="ops-avatar"><%= customer.initials %></div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:hsl(220,15%,12%);"><%= customer.name %></div>
+            <div style="font-size:11px;color:hsl(220,8%,55%);margin-top:1px;">
+              <%= customer.email %> · <%= customer.phone %>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="text-align:right;">
+            <div style="font-family:'Fraunces',serif;font-size:14px;font-weight:600;color:hsl(220,15%,12%);">
+              SAR <%= customer.total_spent.to_f.round(2) %>
+            </div>
+            <div style="font-size:11px;color:hsl(220,8%,55%);margin-top:1px;">
+              <%= customer.voucher_count %> voucher<%= customer.voucher_count != 1 ? 's' : '' %>
+            </div>
+          </div>
+          <span class="ops-badge ops-badge-<%= customer.plan %>"><%= customer.plan %></span>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<% content_for :title, "Jobs" %>
+<%= turbo_stream_from "jobs" %>
+
+<div class="ops-page">
+  <div class="ops-page-header">
+    <div>
+      <div class="ops-page-title">Job Queue</div>
+      <div class="ops-page-sub">Add, advance, and delete jobs — all live via <strong>Turbo Streams</strong></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:hsl(220,8%,55%);">
+      <span class="live-dot"></span> live
+    </div>
+  </div>
+
+  <%= render partial: "dashboard/stats_row" %>
+
+  <div class="ops-split-2-1">
+    <div class="ops-card">
+      <div id="job_list">
+        <% @jobs.each do |job| %>
+          <%= render partial: "jobs/job", locals: { job: job } %>
+        <% end %>
+        <% if @jobs.empty? %>
+          <div style="text-align:center;padding:40px;font-size:13px;color:hsl(220,8%,55%);">
+            No jobs yet — add one →
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="ops-card" style="padding:20px;">
+      <div class="ops-card-title" style="margin-bottom:16px;">Add Job</div>
+      <%= turbo_frame_tag "new_job_form" do %>
+        <%= render partial: "jobs/form", locals: { job: Job.new } %>
+      <% end %>
+    </div>
+  </div>
+</div>

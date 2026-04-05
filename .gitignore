@@ -1,0 +1,33 @@
+# Ruby / Rails
+/log/*
+/tmp/*
+/storage/*
+!/log/.keep
+!/tmp/.keep
+!/storage/.keep
+/db/*.sqlite3
+/db/*.sqlite3-*
+
+# Credentials
+/config/master.key
+/config/credentials/*.key
+.env
+.env.*
+
+# Node
+/node_modules/
+
+# Vite build output
+/public/vite/
+/public/vite-dev/
+/public/vite-test/
+
+# OS
+.DS_Store
+*.swp
+*~
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace

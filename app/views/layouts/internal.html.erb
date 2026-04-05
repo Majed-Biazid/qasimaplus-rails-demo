@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= content_for?(:title) ? yield(:title) : "Internal" %> — Autobia</title>
+    <%= csrf_meta_tags %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet">
+    <%= vite_client_tag %>
+    <%= vite_javascript_tag "entrypoints/internal" %>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      /* ─── Animations ──────────────────────────────── */
+      @keyframes fade-up {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      @keyframes slide-in {
+        from { transform: translateX(-100%); }
+        to   { transform: translateX(0); }
+      }
+      @keyframes slide-out {
+        from { transform: translateX(0); }
+        to   { transform: translateX(-100%); }
+      }
+      @keyframes live-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%      { opacity: 0.35; transform: scale(0.65); }
+      }
+
+      .animate-fade-up   { animation: fade-up 0.35s ease-out both; }
+      .animate-fade-in   { animation: fade-in 0.3s ease-out both; }
+      .delay-1 { animation-delay: 0.06s; }
+      .delay-2 { animation-delay: 0.12s; }
+      .delay-3 { animation-delay: 0.18s; }
+      .delay-4 { animation-delay: 0.24s; }
+      .delay-5 { animation-delay: 0.30s; }
+
+      .ops-root {
+        display: flex;
+        height: 100vh;
+        background: hsl(40, 22%, 96%);
+        color: hsl(220, 15%, 12%);
+        font-family: 'DM Sans', system-ui, sans-serif;
+        font-size: 13.5px;
+        line-height: 1.55;
+        overflow: hidden;
+      }
+
+      /* ─── Sidebar (desktop) ───────────────────────── */
+      .ops-sidebar {
+        width: 220px;
+        min-width: 220px;
+        background: #fff;
+        border-right: 1px solid hsl(36, 14%, 85%);
+        display: none;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+      }
+      @media (min-width: 768px) {
+        .ops-sidebar { display: flex; }
+      }
+
+      /* ─── Mobile header ───────────────────────────── */
+      .ops-mobile-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: #fff;
+        border-bottom: 1px solid hsl(36, 14%, 85%);
+      }
+      @media (min-width: 768px) {
+        .ops-mobile-header { display: none; }
+      }
+
+      .ops-hamburger {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        color: hsl(220, 15%, 12%);
+        font-size: 20px;
+        line-height: 1;
+      }
+
+      /* ─── Mobile drawer ───────────────────────────── */
+      .ops-drawer-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        background: rgba(0,0,0,0.3);
+        animation: fade-in 0.2s ease-out both;
+      }
+      .ops-drawer-overlay.open { display: block; }
+      @media (min-width: 768px) {
+        .ops-drawer-overlay { display: none !important; }
+      }
+
+      .ops-drawer {
+        position: fixed;
+        left: 0; top: 0; bottom: 0;
+        width: 260px;
+        background: #fff;
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+        animation: slide-in 0.25s cubic-bezier(0.32, 0.72, 0, 1) both;
+      }
+
+      .ops-drawer-close {
+        position: absolute;
+        top: 16px; right: 16px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        color: hsl(220, 8%, 50%);
+      }
+
+      /* ─── Sidebar internals ───────────────────────── */
+      .ops-logo-area {
+        padding: 20px;
+        border-bottom: 1px solid hsl(36, 14%, 85%);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+
+      .ops-logo-mark {
+        width: 30px; height: 30px;
+        background: hsl(220, 38%, 26%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 13px;
+        color: #fff;
+        flex-shrink: 0;
+      }
+
+      .ops-logo-name {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: hsl(220, 15%, 12%);
+        letter-spacing: -0.01em;
+        line-height: 1.2;
+      }
+
+      .ops-logo-sub {
+        font-size: 10px;
+        color: hsl(220, 8%, 55%);
+        margin-top: 1px;
+      }
+
+      .ops-nav {
+        flex: 1;
+        padding: 12px 10px;
+        overflow-y: auto;
+      }
+
+      .ops-nav-section {
+        font-size: 9.5px;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: hsl(220, 8%, 62%);
+        padding: 10px 10px 6px;
+      }
+
+      .ops-nav a {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        color: hsl(220, 8%, 50%);
+        text-decoration: none;
+        transition: background 0.12s, color 0.12s;
+        margin-bottom: 2px;
+      }
+
+      .ops-nav a:hover { background: hsl(36, 14%, 93%); color: hsl(220, 15%, 20%); }
+
+      .ops-nav a.active {
+        background: hsl(220, 38%, 26%, 0.07);
+        color: hsl(220, 38%, 26%);
+        font-weight: 500;
+      }
+
+      .ops-nav-icon { font-size: 11px; opacity: 0.7; line-height: 1; flex-shrink: 0; }
+
+      .ops-footer {
+        padding: 12px 20px;
+        border-top: 1px solid hsl(36, 14%, 85%);
+        font-size: 10px;
+        color: hsl(220, 8%, 62%);
+        line-height: 1.9;
+        flex-shrink: 0;
+      }
+
+      /* ─── Main ────────────────────────────────────── */
+      .ops-main { flex: 1; overflow-y: auto; background: hsl(40, 22%, 96%); }
+
+      .ops-flash {
+        margin: 14px 16px 0;
+        padding: 10px 16px;
+        background: hsl(152, 56%, 96%);
+        border: 1px solid hsl(152, 40%, 85%);
+        border-radius: 8px;
+        font-size: 12px;
+        color: hsl(152, 50%, 28%);
+        animation: fade-up 0.3s ease-out both;
+      }
+      @media (min-width: 768px) { .ops-flash { margin: 14px 28px 0; } }
+
+      /* ─── Page structure ──────────────────────────── */
+      .ops-page { padding: 16px; }
+      @media (min-width: 768px) { .ops-page { padding: 28px; } }
+
+      .ops-page-header {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+      }
+
+      .ops-page-title {
+        font-family: 'Fraunces', serif;
+        font-size: 22px;
+        font-weight: 600;
+        color: hsl(220, 15%, 12%);
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+      }
+
+      .ops-page-sub {
+        font-size: 13px;
+        color: hsl(220, 8%, 48%);
+        margin-top: 4px;
+      }
+
+      .ops-page-sub strong {
+        font-size: 11.5px;
+        color: hsl(220, 12%, 38%);
+        font-weight: 600;
+        background: hsl(220, 38%, 26%, 0.06);
+        padding: 1px 6px;
+        border-radius: 4px;
+      }
+
+      /* ─── Stats grid ──────────────────────────────── */
+      .ops-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      @media (min-width: 768px) { .ops-stats { grid-template-columns: repeat(4, 1fr); } }
+
+      .ops-stats-3 {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      @media (min-width: 640px) { .ops-stats-3 { grid-template-columns: repeat(3, 1fr); } }
+
+      .ops-stat {
+        background: #fff;
+        border: 1px solid hsl(36, 14%, 85%);
+        border-radius: 10px;
+        padding: 16px 18px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      }
+
+      .ops-stat-dot {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        margin-bottom: 10px;
+      }
+      .ops-stat-dot.c-blue   { background: hsl(220, 38%, 26%); }
+      .ops-stat-dot.c-amber  { background: hsl(36, 80%, 50%); }
+      .ops-stat-dot.c-green  { background: hsl(152, 56%, 38%); }
+      .ops-stat-dot.c-red    { background: hsl(0, 68%, 55%); }
+
+      .ops-stat-val {
+        font-family: 'Fraunces', serif;
+        font-size: 28px;
+        font-weight: 600;
+        line-height: 1;
+        color: hsl(220, 15%, 12%);
+        letter-spacing: -0.02em;
+      }
+
+      .ops-stat-label {
+        font-size: 11px;
+        color: hsl(220, 8%, 55%);
+        margin-top: 6px;
+      }
+
+      .ops-stat-sub {
+        font-size: 10px;
+        color: hsl(220, 8%, 68%);
+        margin-top: 2px;
+      }
+
+      /* ─── Cards ───────────────────────────────────── */
+      .ops-card {
+        background: #fff;
+        border: 1px solid hsl(36, 14%, 85%);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      }
+
+      .ops-card-header {
+        padding: 14px 16px;
+        border-bottom: 1px solid hsl(36, 14%, 90%);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      @media (min-width: 768px) { .ops-card-header { padding: 14px 20px; } }
+
+      .ops-card-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: hsl(220, 15%, 12%);
+      }
+
+      .ops-card-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: hsl(220, 8%, 55%);
+      }
+
+      /* ─── Rows ────────────────────────────────────── */
+      .ops-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border-bottom: 1px solid hsl(36, 14%, 92%);
+        transition: background 0.1s;
+      }
+      @media (min-width: 768px) { .ops-row { padding: 12px 20px; } }
+      .ops-row:last-child { border-bottom: none; }
+      .ops-row:hover { background: hsl(36, 14%, 97%); }
+
+      .ops-row-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: hsl(220, 15%, 12%);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .ops-row-meta {
+        font-size: 11px;
+        color: hsl(220, 8%, 55%);
+        margin-top: 1px;
+      }
+
+      /* ─── Badges ──────────────────────────────────── */
+      .ops-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: capitalize;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .ops-badge-pending   { background: hsl(220, 38%, 26%, 0.08); color: hsl(220, 38%, 38%); }
+      .ops-badge-running   { background: hsl(210, 70%, 94%);       color: hsl(210, 70%, 38%); }
+      .ops-badge-done      { background: hsl(152, 56%, 93%);       color: hsl(152, 50%, 30%); }
+      .ops-badge-failed    { background: hsl(0, 68%, 94%);         color: hsl(0, 60%, 42%); }
+      .ops-badge-high      { background: hsl(0, 68%, 94%);         color: hsl(0, 60%, 42%); }
+      .ops-badge-medium    { background: hsl(36, 80%, 93%);        color: hsl(36, 60%, 35%); }
+      .ops-badge-low       { background: hsl(220, 10%, 93%);       color: hsl(220, 8%, 50%); }
+      .ops-badge-free      { background: hsl(220, 10%, 93%);       color: hsl(220, 8%, 50%); }
+      .ops-badge-starter   { background: hsl(220, 38%, 26%, 0.08); color: hsl(220, 38%, 38%); }
+      .ops-badge-pro       { background: hsl(152, 56%, 93%);       color: hsl(152, 50%, 30%); }
+      .ops-badge-enterprise{ background: hsl(36, 80%, 93%);        color: hsl(36, 60%, 35%); }
+      .ops-badge-paid      { background: hsl(152, 56%, 93%);       color: hsl(152, 50%, 30%); }
+      .ops-badge-completed { background: hsl(152, 56%, 93%);       color: hsl(152, 50%, 30%); }
+      .ops-badge-refunded  { background: hsl(0, 68%, 94%);         color: hsl(0, 60%, 42%); }
+
+      /* ─── Action buttons ──────────────────────────── */
+      .ops-btn {
+        padding: 4px 10px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 600;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.12s;
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+      }
+      .ops-btn-run  { background: hsl(210, 70%, 95%); color: hsl(210, 70%, 40%); border-color: hsl(210, 60%, 88%); }
+      .ops-btn-done { background: hsl(152, 56%, 94%); color: hsl(152, 50%, 32%); border-color: hsl(152, 40%, 85%); }
+      .ops-btn-del  { background: hsl(0, 68%, 96%);   color: hsl(0, 55%, 50%);   border-color: hsl(0, 50%, 90%); }
+      .ops-btn-run:hover  { background: hsl(210, 70%, 90%); }
+      .ops-btn-done:hover { background: hsl(152, 56%, 88%); }
+      .ops-btn-del:hover  { background: hsl(0, 68%, 92%); }
+
+      /* ─── Form ────────────────────────────────────── */
+      .ops-form-field { margin-bottom: 14px; }
+
+      .ops-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 500;
+        color: hsl(220, 8%, 45%);
+        margin-bottom: 5px;
+      }
+
+      .ops-input {
+        width: 100%;
+        background: #fff;
+        border: 1px solid hsl(36, 14%, 82%);
+        border-radius: 7px;
+        padding: 8px 12px;
+        font-family: 'DM Sans', system-ui, sans-serif;
+        font-size: 13px;
+        color: hsl(220, 15%, 12%);
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      .ops-input:focus {
+        border-color: hsl(220, 38%, 50%);
+        box-shadow: 0 0 0 3px hsl(220, 38%, 26%, 0.08);
+      }
+      .ops-input::placeholder { color: hsl(220, 8%, 72%); }
+
+      .ops-submit {
+        width: 100%;
+        padding: 10px 16px;
+        background: hsl(220, 38%, 26%);
+        color: #fff;
+        font-family: 'DM Sans', system-ui, sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        border: none;
+        border-radius: 7px;
+        cursor: pointer;
+        transition: background 0.15s;
+        margin-top: 14px;
+      }
+      .ops-submit:hover { background: hsl(220, 38%, 22%); }
+
+      /* ─── Consumers ───────────────────────────────── */
+      .ops-avatar {
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        background: hsl(220, 38%, 26%, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+        color: hsl(220, 38%, 32%);
+        flex-shrink: 0;
+      }
+
+      .ops-customer-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-bottom: 1px solid hsl(36, 14%, 92%);
+        text-decoration: none;
+        transition: background 0.1s;
+      }
+      @media (min-width: 768px) { .ops-customer-link { padding: 12px 20px; } }
+      .ops-customer-link:last-child { border-bottom: none; }
+      .ops-customer-link:hover { background: hsl(36, 14%, 97%); }
+
+      /* ─── Profile detail ──────────────────────────── */
+      .ops-dl {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 18px 16px;
+      }
+      @media (min-width: 640px) { .ops-dl { grid-template-columns: 1fr 1fr; gap: 16px 28px; padding: 18px 20px; } }
+
+      .ops-dt {
+        font-size: 10px;
+        font-weight: 500;
+        color: hsl(220, 8%, 55%);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 3px;
+      }
+
+      .ops-dd {
+        font-size: 13px;
+        color: hsl(220, 15%, 12%);
+        font-weight: 500;
+      }
+
+      .ops-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: hsl(220, 8%, 50%);
+        text-decoration: none;
+        transition: color 0.12s;
+        margin-bottom: 20px;
+      }
+      .ops-back:hover { color: hsl(220, 15%, 20%); }
+
+      .ops-profile-header {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      @media (min-width: 640px) { .ops-profile-header { flex-direction: row; align-items: center; justify-content: space-between; } }
+
+      .ops-profile-avatar {
+        width: 46px; height: 46px;
+        border-radius: 50%;
+        background: hsl(220, 38%, 26%, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        font-weight: 600;
+        color: hsl(220, 38%, 32%);
+        flex-shrink: 0;
+      }
+
+      .ops-order-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-bottom: 1px solid hsl(36, 14%, 92%);
+      }
+      @media (min-width: 768px) { .ops-order-row { padding: 12px 20px; } }
+      .ops-order-row:last-child { border-bottom: none; }
+
+      .live-dot {
+        display: inline-block;
+        width: 6px; height: 6px;
+        background: hsl(152, 56%, 45%);
+        border-radius: 50%;
+        animation: live-pulse 2.5s ease-in-out infinite;
+      }
+
+      /* ─── Layout helpers ──────────────────────────── */
+      .ops-split { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; }
+      .ops-split-2-1 { display: grid; grid-template-columns: 1fr; gap: 16px; }
+      @media (min-width: 768px) {
+        .ops-split { grid-template-columns: 1fr auto; }
+        .ops-split-2-1 { grid-template-columns: 2fr 1fr; }
+      }
+    </style>
+    <script>
+      function toggleDrawer() {
+        document.getElementById('ops-drawer-overlay').classList.toggle('open');
+      }
+    </script>
+  </head>
+
+  <body>
+    <div class="ops-root">
+      <!-- Desktop sidebar -->
+      <aside class="ops-sidebar">
+        <div class="ops-logo-area">
+          <div class="ops-logo-mark">A</div>
+          <div>
+            <div class="ops-logo-name">Autobia</div>
+            <div class="ops-logo-sub">Admin Panel</div>
+          </div>
+        </div>
+        <nav class="ops-nav">
+          <div class="ops-nav-section">Workspace</div>
+          <%= link_to internal_dashboard_path,
+              class: (request.path.start_with?('/internal/dashboard') || request.path == '/internal') ? 'active' : '' do %>
+            <span class="ops-nav-icon">◆</span> Dashboard
+          <% end %>
+          <%= link_to internal_jobs_path,
+              class: request.path.start_with?('/internal/jobs') ? 'active' : '' do %>
+            <span class="ops-nav-icon">◆</span> Job Queue
+          <% end %>
+          <%= link_to internal_customers_path,
+              class: request.path.start_with?('/internal/customers') ? 'active' : '' do %>
+            <span class="ops-nav-icon">◆</span> Consumers
+          <% end %>
+        </nav>
+        <div class="ops-footer">
+          Hotwire · Turbo · Rails 7<br>
+          ViewComponent · Tailwind
+        </div>
+      </aside>
+
+      <!-- Mobile drawer overlay -->
+      <div id="ops-drawer-overlay" class="ops-drawer-overlay" onclick="toggleDrawer()">
+        <aside class="ops-drawer" onclick="event.stopPropagation()">
+          <button class="ops-drawer-close" onclick="toggleDrawer()">✕</button>
+          <div class="ops-logo-area">
+            <div class="ops-logo-mark">A</div>
+            <div>
+              <div class="ops-logo-name">Autobia</div>
+              <div class="ops-logo-sub">Admin Panel</div>
+            </div>
+          </div>
+          <nav class="ops-nav">
+            <div class="ops-nav-section">Workspace</div>
+            <%= link_to internal_dashboard_path, onclick: "toggleDrawer()",
+                class: (request.path.start_with?('/internal/dashboard') || request.path == '/internal') ? 'active' : '' do %>
+              <span class="ops-nav-icon">◆</span> Dashboard
+            <% end %>
+            <%= link_to internal_jobs_path, onclick: "toggleDrawer()",
+                class: request.path.start_with?('/internal/jobs') ? 'active' : '' do %>
+              <span class="ops-nav-icon">◆</span> Job Queue
+            <% end %>
+            <%= link_to internal_customers_path, onclick: "toggleDrawer()",
+                class: request.path.start_with?('/internal/customers') ? 'active' : '' do %>
+              <span class="ops-nav-icon">◆</span> Consumers
+            <% end %>
+          </nav>
+          <div class="ops-footer">
+            Hotwire · Turbo · Rails 7<br>
+            ViewComponent · Tailwind
+          </div>
+        </aside>
+      </div>
+
+      <main class="ops-main">
+        <!-- Mobile header -->
+        <div class="ops-mobile-header">
+          <button class="ops-hamburger" onclick="toggleDrawer()">☰</button>
+          <span style="font-size:14px;font-weight:600;color:hsl(220,15%,12%);">Autobia</span>
+        </div>
+
+        <% if flash[:notice] %>
+          <div class="ops-flash">✓ <%= flash[:notice] %></div>
+        <% end %>
+        <%= yield %>
+      </main>
+    </div>
+  </body>
+</html>

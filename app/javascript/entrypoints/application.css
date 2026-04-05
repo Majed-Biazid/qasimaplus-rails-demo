@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════
+   ShadCN CSS Variables — External / React pages
+   Warm editorial + deep navy palette
+   ═══════════════════════════════════════════════════════════ */
+@layer base {
+  :root {
+    --background:          40 22% 96%;       /* #f5f2ec warm cream */
+    --foreground:          220 15% 12%;      /* #1a1d26 near-black */
+    --card:                0 0% 100%;
+    --card-foreground:     220 15% 12%;
+    --popover:             0 0% 100%;
+    --popover-foreground:  220 15% 12%;
+    --primary:             220 38% 26%;      /* #283557 deep navy */
+    --primary-foreground:  40 22% 96%;
+    --secondary:           36 16% 91%;       /* #ede9e1 warm stone */
+    --secondary-foreground:220 15% 12%;
+    --muted:               36 14% 88%;       /* #e4dfd5 */
+    --muted-foreground:    220 8% 48%;       /* #717488 */
+    --accent:              36 16% 88%;
+    --accent-foreground:   220 15% 12%;
+    --destructive:         0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border:              36 14% 85%;       /* #ddd7cc */
+    --input:               36 14% 85%;
+    --ring:                220 38% 26%;
+    --radius:              0.5rem;
+
+    /* Extended semantic tokens */
+    --success:             145 60% 36%;
+    --success-foreground:  0 0% 98%;
+    --warning:             38 90% 48%;
+    --warning-foreground:  0 0% 10%;
+  }
+
+  * { border-color: hsl(var(--border)); }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}

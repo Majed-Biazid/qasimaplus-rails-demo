@@ -1,0 +1,70 @@
+<div class="ops-page" style="max-width:800px;">
+  <%= link_to "← Consumers", internal_customers_path, class: "ops-back" %>
+
+  <div class="ops-profile-header animate-fade-up">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div class="ops-profile-avatar"><%= @customer.initials %></div>
+      <div>
+        <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:hsl(220,15%,12%);letter-spacing:-0.02em;">
+          <%= @customer.name %>
+        </div>
+        <div style="font-size:12px;color:hsl(220,8%,50%);margin-top:2px;">
+          <%= @customer.email %> · <%= @customer.phone %>
+        </div>
+      </div>
+    </div>
+    <span class="ops-badge ops-badge-<%= @customer.plan %>" style="font-size:11px;padding:3px 10px;">
+      <%= @customer.plan %>
+    </span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr;gap:16px;">
+    <div class="ops-card animate-fade-up delay-1">
+      <div class="ops-card-header"><span class="ops-card-title">Consumer Profile</span></div>
+      <div class="ops-dl">
+        <% [
+          ["Full Name",    @customer.name],
+          ["Email",        @customer.email],
+          ["Phone",        @customer.phone],
+          ["Plan",         @customer.plan.capitalize],
+          ["Member Since", @customer.joined_on],
+          ["Total Spent",  "SAR #{@customer.total_spent.to_f.round(2)}"],
+        ].each do |label, value| %>
+          <div>
+            <div class="ops-dt"><%= label %></div>
+            <div class="ops-dd"><%= value %></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="ops-card animate-fade-up delay-2">
+      <div class="ops-card-header">
+        <span class="ops-card-title">Voucher History</span>
+        <span class="ops-card-meta"><%= @orders.size %> voucher<%= @orders.size != 1 ? 's' : '' %></span>
+      </div>
+      <% if @orders.empty? %>
+        <div style="padding:32px;text-align:center;font-size:13px;color:hsl(220,8%,55%);">
+          No vouchers yet.
+        </div>
+      <% else %>
+        <% @orders.each do |order| %>
+          <div class="ops-order-row">
+            <div style="min-width:0;">
+              <div style="font-size:13px;font-weight:500;color:hsl(220,15%,12%);"><%= order.merchant_name %></div>
+              <div style="font-size:11px;color:hsl(220,8%,55%);margin-top:1px;">
+                VCH-<%= format("%06d", order.id) %> · <%= order.placed_on&.strftime("%b %d, %Y") %>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
+              <span style="font-family:'Fraunces',serif;font-size:14px;font-weight:600;color:hsl(220,15%,12%);">
+                SAR <%= order.amount.to_f.round(2) %>
+              </span>
+              <span class="ops-badge ops-badge-<%= order.display_status %>"><%= order.display_status %></span>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

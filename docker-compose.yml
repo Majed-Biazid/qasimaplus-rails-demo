@@ -1,0 +1,40 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Local development — mirrors production image but with live code reloading.
+#
+#   docker compose up          → starts the app on http://localhost:3020
+#   docker compose up --build  → rebuild after Gemfile/package.json changes
+#   docker compose run web rails db:seed  → run one-off commands
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── Rails + Vite (single process via Foreman/Overmind) ──────────────────
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev          # lightweight dev image (see below)
+    ports:
+      - "3020:3020"     # Rails
+      - "3036:3036"     # Vite HMR (autoBuild in dev = not needed, but handy)
+    volumes:
+      - .:/rails                          # live code mount — edit locally, reflects instantly
+      - bundle_cache:/usr/local/bundle    # gem cache survives rebuilds
+      - node_modules:/rails/node_modules  # node_modules inside container
+      - sqlite_data:/rails/storage        # SQLite DB persists between restarts
+    environment:
+      RAILS_ENV: development
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}   # read from .env file (see below)
+      WEB_CONCURRENCY: "1"
+    command: >
+      sh -c "
+        bundle exec rails db:prepare &&
+        bundle exec rails db:seed &&
+        bin/rails server -b 0.0.0.0 -p 3020
+      "
+    # Vite runs automatically via autoBuild: true in config/vite.json —
+    # no separate vite process needed in development.
+
+volumes:
+  bundle_cache:
+  node_modules:
+  sqlite_data:

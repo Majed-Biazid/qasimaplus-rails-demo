@@ -1,0 +1,17 @@
+<div id="<%= dom_id job %>" class="ops-row">
+  <div style="flex:1;min-width:0;">
+    <div class="ops-row-title"><%= job.title %></div>
+    <div class="ops-row-meta"><%= time_ago_in_words(job.created_at) %> ago</div>
+  </div>
+  <%= render Ui::BadgeComponent.new(label: job.priority, type: job.priority) %>
+  <%= render Ui::BadgeComponent.new(label: job.status,   type: job.status)   %>
+  <div style="display:flex;gap:4px;flex-shrink:0;">
+    <% if job.status == "pending" %>
+      <%= button_to "▶ run",  internal_job_path(job), params: { status: "running" }, method: :patch, class: "ops-btn ops-btn-run" %>
+    <% end %>
+    <% if job.status == "running" %>
+      <%= button_to "✓ done", internal_job_path(job), params: { status: "done" },    method: :patch, class: "ops-btn ops-btn-done" %>
+    <% end %>
+    <%= button_to "✕", internal_job_path(job), method: :delete, class: "ops-btn ops-btn-del" %>
+  </div>
+</div>
