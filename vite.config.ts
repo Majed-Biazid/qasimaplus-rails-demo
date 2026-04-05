@@ -15,4 +15,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./app/javascript"),
     },
   },
+  ssr: {
+    noExternal: ['@inertiajs/server'],
+  },
 })
