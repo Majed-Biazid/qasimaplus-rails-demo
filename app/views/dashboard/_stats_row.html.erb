@@ -1,0 +1,7 @@
+<%# Rebroadcast via Turbo Stream on every job change %>
+<div id="stats_row" class="ops-stats">
+  <%= render Dashboard::StatCardComponent.new(title: "Total Jobs", value: Job.count,                          icon: "", color: :blue)   %>
+  <%= render Dashboard::StatCardComponent.new(title: "Pending",    value: Job.where(status: "pending").count, icon: "", color: :yellow, subtitle: "awaiting run") %>
+  <%= render Dashboard::StatCardComponent.new(title: "Running",    value: Job.where(status: "running").count, icon: "", color: :blue,   subtitle: "in progress") %>
+  <%= render Dashboard::StatCardComponent.new(title: "Done",       value: Job.where(status: "done").count,    icon: "", color: :green,  subtitle: "completed") %>
+</div>

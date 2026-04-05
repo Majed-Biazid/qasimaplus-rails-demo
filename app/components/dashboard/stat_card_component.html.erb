@@ -1,0 +1,12 @@
+<%
+  color_map = { blue: 'blue', green: 'green', yellow: 'amber', red: 'red' }
+  c = color_map[@color] || 'blue'
+%>
+<div class="ops-stat c-<%= c %>">
+  <div class="ops-stat-dot c-<%= c %>"></div>
+  <div class="ops-stat-val"><%= @value %></div>
+  <div class="ops-stat-label"><%= @title %></div>
+  <% if @subtitle %>
+    <div class="ops-stat-sub"><%= @subtitle %></div>
+  <% end %>
+</div>

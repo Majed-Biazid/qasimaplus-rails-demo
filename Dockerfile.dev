@@ -1,0 +1,32 @@
+# syntax = docker/dockerfile:1
+# ─────────────────────────────────────────────────────────────────────────────
+# Development image — used by docker-compose.yml only.
+# Lighter than the production Dockerfile: no asset precompile, no bootsnap,
+# code is mounted as a volume so no COPY of app code needed.
+# ─────────────────────────────────────────────────────────────────────────────
+
+ARG RUBY_VERSION=3.3.0
+ARG NODE_VERSION=22
+
+FROM docker.io/library/ruby:${RUBY_VERSION}-slim
+
+WORKDIR /rails
+
+# OS packages: build tools + Node.js + SQLite runtime
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+      build-essential git libyaml-dev pkg-config \
+      curl libvips sqlite3 && \
+    curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
+    apt-get install --no-install-recommends -y nodejs && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+ENV BUNDLE_PATH="/usr/local/bundle"
+
+# Install gems (cache layer — only re-runs if Gemfile changes)
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+
+# Install JS deps (cache layer — only re-runs if package.json changes)
+COPY package.json package-lock.json ./
+RUN npm install

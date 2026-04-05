@@ -1,0 +1,12 @@
+<%= form_with model: job, url: internal_jobs_path, data: { turbo_frame: "new_job_form" } do |f| %>
+  <div class="ops-form-field">
+    <%= f.label :title, "Job Title", class: "ops-label" %>
+    <%= f.text_field :title, placeholder: "e.g. Process invoices", class: "ops-input" %>
+  </div>
+  <div class="ops-form-field">
+    <%= f.label :priority, "Priority", class: "ops-label" %>
+    <%= f.select :priority, Job::PRIORITIES, { prompt: "Select priority" }, class: "ops-input" %>
+  </div>
+  <%= f.hidden_field :status, value: "pending" %>
+  <%= f.submit "Add Job →", class: "ops-submit" %>
+<% end %>
