@@ -107,43 +107,58 @@ Each layout loads its own entrypoint. Vite serves both through `vite-plugin-ruby
 | Admin Frontend | Hotwire (Turbo Streams + Turbo Drive) · Stimulus · ViewComponent |
 | Animations | Motion (Framer Motion) for React · CSS @keyframes for ERB |
 | Styling | Tailwind CSS v4 · ShadCN CSS variables |
-| Build | Vite 8 via vite-plugin-ruby |
+| Dev Server | Vite 8 via vite-plugin-ruby (no build step in development) |
 | Database | SQLite (zero config) |
 | Deployment | Docker multi-stage build · GCP Cloud Run ready |
+
+---
+
+## Prerequisites
+
+- **Ruby 3.3+** — [install via rbenv](https://github.com/rbenv/rbenv) or asdf
+- **Node 22+** — [install via nvm](https://github.com/nvm-sh/nvm) or fnm
+- **Bundler** — `gem install bundler` (comes with Ruby)
 
 ---
 
 ## Setup
 
 ```bash
+# 1. Clone
 git clone https://github.com/Majed-Biazid/qasimaplus-rails-demo.git
 cd qasimaplus-rails-demo
 
-bundle install
-npm install
+# 2. Install dependencies
+bundle install    # Ruby gems (Rails, Inertia, ViewComponent...)
+npm install       # Node packages (React, ShadCN, Motion, Tailwind...)
 
-bin/rails db:prepare
-bin/rails db:seed
+# 3. Create database and load sample data
+bin/rails db:setup    # Creates DB + runs migrations + seeds
 
-# Start both servers (Vite required for React HMR)
-bin/vite dev &
-bin/rails s -p 3000
+# 4. Start the app (two processes needed)
+bin/vite dev &        # Vite dev server on :3036 (serves React + Tailwind with HMR)
+bin/rails s -p 3000   # Rails server on :3000
 ```
 
-- **Consumer Portal** — http://localhost:3000/external
-- **Admin Panel** — http://localhost:3000/internal
+Open in your browser:
 
-### Docker
+- **Consumer Portal** → http://localhost:3000/external — React voucher app (home, history, receipt detail, profile)
+- **Admin Panel** → http://localhost:3000/internal — Hotwire dashboard (voucher stats, live job queue, consumer management)
+
+> **Note:** Both processes are required in development. Vite serves the React/Tailwind assets with hot-reload. Rails serves everything else. In production (Docker), Vite assets are precompiled — only Rails runs.
+
+### Docker (production mode, no Vite process needed)
 
 ```bash
 docker build -t qasimaplus-demo .
 docker run -p 3000:3000 qasimaplus-demo
+# Open http://localhost:3000 — everything works from one container
 ```
 
 ### Tests
 
 ```bash
-bin/rails test    # 41 tests, 66 assertions
+bin/rails test    # 41 tests, 66 assertions — models, controllers, integration
 ```
 
 ---
