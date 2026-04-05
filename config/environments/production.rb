@@ -49,7 +49,9 @@ Rails.application.configure do
   # config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = true
+  # Disabled by default for local Docker testing. Cloud Run terminates SSL at the load balancer.
+  # Set FORCE_SSL=true in production if needed.
+  config.force_ssl = ENV["FORCE_SSL"] == "true"
 
   # Skip http-to-https redirect for the default health check endpoint.
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }

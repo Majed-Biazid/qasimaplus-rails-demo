@@ -151,9 +151,11 @@ Open in your browser:
 
 ```bash
 docker build -t qasimaplus-demo .
-docker run -p 3000:3000 qasimaplus-demo
+docker run -p 3000:3000 -e SECRET_KEY_BASE=$(openssl rand -hex 64) qasimaplus-demo
 # Open http://localhost:3000 — everything works from one container
 ```
+
+> The container auto-creates the database, runs migrations, and seeds on first start. No manual setup needed.
 
 ### Tests
 
