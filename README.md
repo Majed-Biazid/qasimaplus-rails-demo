@@ -102,9 +102,10 @@ Each layout loads its own entrypoint. Vite serves both through `vite-plugin-ruby
 
 | Layer | Technology |
 |-------|-----------|
-| Backend | Ruby 3.3 · Rails 7.2 |
-| Consumer Frontend | React 19 · Inertia.js 3 · ShadCN UI · Radix UI |
+| Backend | Ruby 3.3 · Rails 8.0 (Solid Cable, Solid Queue, Solid Cache) |
+| Consumer Frontend | React 19 · Inertia.js 3 (SSR ready) · ShadCN UI · Radix UI |
 | Admin Frontend | Hotwire (Turbo Streams + Turbo Drive) · Stimulus · ViewComponent |
+| Real-time | Turbo Streams + Solid Cable (no Redis needed) |
 | Animations | Motion (Framer Motion) for React · CSS @keyframes for ERB |
 | Styling | Tailwind CSS v4 · ShadCN CSS variables |
 | Dev Server | Vite 8 via vite-plugin-ruby (no build step in development) |
